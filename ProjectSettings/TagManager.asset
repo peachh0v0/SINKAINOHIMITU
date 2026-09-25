@@ -2,7 +2,7 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags: []
   layers:
   - Default
@@ -15,8 +15,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - hika
+  - hikari
   - 
   - 
   - 
@@ -41,3 +41,21 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: New Layer 1
+    uniqueID: 577002679
+    locked: 0
+  - name: New Layer 2
+    uniqueID: 2034194007
+    locked: 0
+  - name: New Layer 3
+    uniqueID: 3446797131
+    locked: 0
+  - name: New Layer 4
+    uniqueID: 2411567209
+    locked: 0
+  - name: New Layer 5
+    uniqueID: 3767181259
+    locked: 0
+  m_RenderingLayers:
+  - Default
+  m_MigratedRenderPipelines: []
