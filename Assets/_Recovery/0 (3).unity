@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0399c8c6fce6caf4caf419552c2eea14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Mirror
+  reflectionDirection: {x: 1, y: 0}
 --- !u!212 &19081892
 SpriteRenderer:
   serializedVersion: 2
@@ -239,7 +240,7 @@ Transform:
   m_GameObject: {fileID: 19081890}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.04, y: -1.82, z: 0.63}
+  m_LocalPosition: {x: -2.04, y: -1.77, z: 2.86}
   m_LocalScale: {x: 0.50625, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -259,7 +260,7 @@ GameObject:
   - component: {fileID: 342834843}
   m_Layer: 0
   m_Name: HIKA (1)
-  m_TagString: HIKA
+  m_TagString: HiKA
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -414,7 +415,7 @@ Transform:
   m_GameObject: {fileID: 395762374}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.02, y: -1.77, z: 0.18}
+  m_LocalPosition: {x: 1.02, y: -1.77, z: -0.05}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -857,7 +858,7 @@ Transform:
   m_GameObject: {fileID: 762151037}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.2, y: -4.89, z: 0}
+  m_LocalPosition: {x: 0.2, y: -3.78, z: 0}
   m_LocalScale: {x: 18.713, y: 2.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1183,7 +1184,7 @@ GameObject:
   - component: {fileID: 1352267129}
   m_Layer: 0
   m_Name: HIKA (2)
-  m_TagString: HIKA
+  m_TagString: HiKA
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1848,7 +1849,7 @@ Transform:
   m_GameObject: {fileID: 2012285185}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.48, y: -2.51, z: 0}
+  m_LocalPosition: {x: -4.48, y: -2.93, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

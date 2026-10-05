@@ -8,10 +8,8 @@ public class LightRayController : MonoBehaviour
     private Transform sourceA;
     private Transform sourceB;
 
+    private Mirror mirror;
 
-    // =========================
-    // 初期設定
-    // =========================
     void Awake()
     {
         line = GetComponent<LineRenderer>();
@@ -21,12 +19,10 @@ public class LightRayController : MonoBehaviour
         line.sortingOrder = 10;
 
         line.enabled = false;
+
+        mirror = FindAnyObjectByType<Mirror>();
     }
 
-
-    // =========================
-    // 光を更新
-    // =========================
     void Update()
     {
         if (sourceA == null || sourceB == null)
@@ -35,122 +31,48 @@ public class LightRayController : MonoBehaviour
             return;
         }
 
-        // 光源が無効なら光も消す
-        if (!sourceA.gameObject.activeInHierarchy ||
-            !sourceB.gameObject.activeInHierarchy)
-        {
-            line.enabled = false;
-            return;
-        }
-
         line.enabled = true;
 
-
-        // 鏡が光の線上にあるか確認
-        Mirror mirror = FindMirrorOnPath();
-
-
-        // =========================
-        // 鏡なし
-        // =========================
-        if (mirror == null)
+        if (mirror != null)
         {
-            line.positionCount = 2;
+            Transform entry =
+                mirror.transform.Find("EntryPoint");
 
-            line.SetPosition(
-                0,
-                sourceA.position
-            );
+            Transform exit =
+                mirror.transform.Find("ExitPoint");
 
-            line.SetPosition(
-                1,
-                sourceB.position
-            );
+            if (entry != null && exit != null)
+            {
+                // A → Entry → Exit → B
+                line.positionCount = 4;
 
-            return;
+                line.SetPosition(0, sourceA.position);
+                line.SetPosition(1, entry.position);
+                line.SetPosition(2, exit.position);
+                line.SetPosition(3, sourceB.position);
+
+                return;
+            }
         }
 
+        // 鏡がない場合は普通にA→B
+        line.positionCount = 2;
 
-        // =========================
-        // 鏡あり
-        // =========================
-
-        Vector2 start =
-            sourceA.position;
-
-        Vector2 direction =
-            ((Vector2)sourceB.position - start)
-            .normalized;
-
-        float distance =
-            Vector2.Distance(
-                sourceA.position,
-                sourceB.position
-            );
-
-
-        RaycastHit2D hit =
-            Physics2D.Raycast(
-                start,
-                direction,
-                distance
-            );
-
-
-        if (hit.collider != null &&
-            hit.collider.GetComponent<Mirror>() != null)
-        {
-            Vector2 mirrorPoint =
-                hit.point;
-
-
-            // 反射
-            Vector2 reflectedDirection =
-                mirror.Reflect(direction);
-
-
-            // 反射する長さ
-            float reflectedDistance =
-                Vector2.Distance(
-                    mirrorPoint,
-                    sourceB.position
-                );
-
-
-            Vector2 reflectedEnd =
-                mirrorPoint +
-                reflectedDirection *
-                reflectedDistance;
-
-
-            line.positionCount = 3;
-
-            line.SetPosition(
-                0,
-                sourceA.position
-            );
-
-            line.SetPosition(
-                1,
-                mirrorPoint
-            );
-
-            line.SetPosition(
-                2,
-                reflectedEnd
-            );
-        }
+        line.SetPosition(0, sourceA.position);
+        line.SetPosition(1, sourceB.position);
     }
 
-
-    // =========================
-    // 2つの光源を接続
-    // =========================
     public void Connect(
         Transform first,
         Transform second
     )
     {
+        if (!first.CompareTag("HIKA") ||
+            !second.CompareTag("HIKA"))
+        {
+            return;
+        }
+
         sourceA = first;
         sourceB = second;
 
@@ -159,10 +81,6 @@ public class LightRayController : MonoBehaviour
         UpdateGirlPath();
     }
 
-
-    // =========================
-    // 光を消す
-    // =========================
     public void ClearConnection()
     {
         sourceA = null;
@@ -171,8 +89,6 @@ public class LightRayController : MonoBehaviour
         line.positionCount = 0;
         line.enabled = false;
 
-
-        // 女の子も停止
         GirlController girl =
             FindAnyObjectByType<GirlController>();
 
@@ -182,59 +98,6 @@ public class LightRayController : MonoBehaviour
         }
     }
 
-
-    // =========================
-    // 光の直線上に鏡があるか
-    // =========================
-    private Mirror FindMirrorOnPath()
-    {
-        if (sourceA == null ||
-            sourceB == null)
-        {
-            return null;
-        }
-
-
-        Vector2 start =
-            sourceA.position;
-
-        Vector2 direction =
-            ((Vector2)sourceB.position - start)
-            .normalized;
-
-        float distance =
-            Vector2.Distance(
-                sourceA.position,
-                sourceB.position
-            );
-
-
-        RaycastHit2D hit =
-            Physics2D.Raycast(
-                start,
-                direction,
-                distance
-            );
-
-
-        if (hit.collider != null)
-        {
-            Mirror mirror =
-                hit.collider.GetComponent<Mirror>();
-
-            if (mirror != null)
-            {
-                return mirror;
-            }
-        }
-
-        return null;
-    }
-
-
-    // =========================
-    // 女の子のルートを設定
-    // =========================
     private void UpdateGirlPath()
     {
         GirlController girl =
@@ -243,85 +106,37 @@ public class LightRayController : MonoBehaviour
         if (girl == null)
             return;
 
-
-        Mirror mirror =
-            FindMirrorOnPath();
-
-
-        // =========================
-        // 鏡なし
-        // =========================
-        if (mirror == null)
+        if (mirror != null)
         {
-            girl.StartWalking(
-                new Vector3[]
-                {
-                    sourceA.position,
-                    sourceB.position
-                }
-            );
+            Transform entry =
+                mirror.transform.Find("EntryPoint");
 
-            return;
+            Transform exit =
+                mirror.transform.Find("ExitPoint");
+
+            if (entry != null && exit != null)
+            {
+                // A → Entry → Exit → B
+                girl.StartWalking(
+                    new Vector3[]
+                    {
+                        sourceA.position,
+                        entry.position,
+                        exit.position,
+                        sourceB.position
+                    }
+                );
+
+                return;
+            }
         }
 
-
-        // =========================
-        // 鏡あり
-        // =========================
-
-        Vector2 start =
-            sourceA.position;
-
-        Vector2 direction =
-            ((Vector2)sourceB.position - start)
-            .normalized;
-
-        float distance =
-            Vector2.Distance(
-                sourceA.position,
-                sourceB.position
-            );
-
-
-        RaycastHit2D hit =
-            Physics2D.Raycast(
-                start,
-                direction,
-                distance
-            );
-
-
-        if (hit.collider == null)
-            return;
-
-
-        Vector2 mirrorPoint =
-            hit.point;
-
-
-        Vector2 reflectedDirection =
-            mirror.Reflect(direction);
-
-
-        float reflectedDistance =
-            Vector2.Distance(
-                mirrorPoint,
-                sourceB.position
-            );
-
-
-        Vector2 reflectedEnd =
-            mirrorPoint +
-            reflectedDirection *
-            reflectedDistance;
-
-
+        // A → B
         girl.StartWalking(
             new Vector3[]
             {
                 sourceA.position,
-                mirrorPoint,
-                reflectedEnd
+                sourceB.position
             }
         );
     }

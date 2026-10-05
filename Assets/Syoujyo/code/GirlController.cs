@@ -8,8 +8,6 @@ public class GirlController : MonoBehaviour
     private int targetIndex;
     private bool isWalking;
 
-
-    // 女の子を歩かせる
     public void StartWalking(Vector3[] newPath)
     {
         path = newPath;
@@ -20,24 +18,39 @@ public class GirlController : MonoBehaviour
             return;
         }
 
-        // 最初の光の線上で一番近い場所を探す
-        Vector3 closestPoint = ClosestPointOnLine(
-            transform.position,
-            path[0],
-            path[1]
-        );
+        // 今いる場所から一番近い場所を探す
+        Vector3 closestPoint = transform.position;
+        float closestDistance = float.MaxValue;
+        int closestSegment = 0;
 
-        float distance = Vector3.Distance(
-            transform.position,
-            closestPoint
-        );
+        for (int i = 0; i < path.Length - 1; i++)
+        {
+            Vector3 point = ClosestPointOnLine(
+                transform.position,
+                path[i],
+                path[i + 1]
+            );
 
-        // 光の線の近くにいるときだけ歩く
-        if (distance < 1.0f)
+            float distance =
+                Vector3.Distance(
+                    transform.position,
+                    point
+                );
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestPoint = point;
+                closestSegment = i;
+            }
+        }
+
+        // 光の線が少女の近くに来たら歩く
+        if (closestDistance <= 1.5f)
         {
             transform.position = closestPoint;
 
-            targetIndex = 1;
+            targetIndex = closestSegment + 1;
             isWalking = true;
         }
         else
@@ -46,8 +59,6 @@ public class GirlController : MonoBehaviour
         }
     }
 
-
-    // 毎フレーム移動
     void Update()
     {
         if (!isWalking || path == null)
@@ -67,14 +78,12 @@ public class GirlController : MonoBehaviour
             moveSpeed * Time.deltaTime
         );
 
-        // 目的地に到着
         if (Vector3.Distance(
             transform.position,
             target
         ) < 0.01f)
         {
             transform.position = target;
-
             targetIndex++;
 
             if (targetIndex >= path.Length)
@@ -84,16 +93,12 @@ public class GirlController : MonoBehaviour
         }
     }
 
-
-    // 女の子を停止する
     public void StopWalking()
     {
         isWalking = false;
         path = null;
     }
 
-
-    // 線の上で一番近い場所を取得
     private Vector3 ClosestPointOnLine(
         Vector3 point,
         Vector3 lineStart,
