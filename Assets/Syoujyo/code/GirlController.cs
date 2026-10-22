@@ -1,124 +1,94 @@
+
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GirlController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 1.5f;
+    [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private Animator animator;
 
-    private Vector3[] path;
-    private int targetIndex;
-    private bool isWalking;
+    private string currentAnimation = "";
 
-    public void StartWalking(Vector3[] newPath)
+    private void Awake()
     {
-        path = newPath;
+        if (animator == null)
+            animator = GetComponent<Animator>();
 
-        if (path == null || path.Length < 2)
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
+    }
+
+    private void Update()
+    {
+        float horizontal = 0f;
+        float vertical = 0f;
+
+        if (Keyboard.current != null)
         {
-            isWalking = false;
+            if (Keyboard.current.aKey.isPressed ||
+                Keyboard.current.leftArrowKey.isPressed)
+                horizontal = -1f;
+
+            if (Keyboard.current.dKey.isPressed ||
+                Keyboard.current.rightArrowKey.isPressed)
+                horizontal = 1f;
+
+            if (Keyboard.current.wKey.isPressed ||
+                Keyboard.current.upArrowKey.isPressed)
+                vertical = 1f;
+
+            if (Keyboard.current.sKey.isPressed ||
+                Keyboard.current.downArrowKey.isPressed)
+                vertical = -1f;
+        }
+
+        Vector2 movement = new Vector2(horizontal, vertical);
+
+        if (movement.magnitude > 1f)
+            movement.Normalize();
+
+        transform.position += (Vector3)(movement * moveSpeed * Time.deltaTime);
+
+        if (animator == null)
+            return;
+
+        if (movement == Vector2.zero)
+        {
+            animator.SetBool("IsWalking", false);
+            currentAnimation = "";
             return;
         }
 
-        // ç°Ç¢ÇÈèÍèäÇ©ÇÁàÍî‘ãﬂÇ¢èÍèäÇíTÇ∑
-        Vector3 closestPoint = transform.position;
-        float closestDistance = float.MaxValue;
-        int closestSegment = 0;
+        animator.SetBool("IsWalking", true);
 
-        for (int i = 0; i < path.Length - 1; i++)
-        {
-            Vector3 point = ClosestPointOnLine(
-                transform.position,
-                path[i],
-                path[i + 1]
-            );
+        string nextAnimation;
 
-            float distance =
-                Vector3.Distance(
-                    transform.position,
-                    point
-                );
-
-            if (distance < closestDistance)
-            {
-                closestDistance = distance;
-                closestPoint = point;
-                closestSegment = i;
-            }
-        }
-
-        // åıÇÃê¸Ç™è≠èóÇÃãﬂÇ≠Ç…óàÇΩÇÁï‡Ç≠
-        if (closestDistance <= 1.5f)
-        {
-            transform.position = closestPoint;
-
-            targetIndex = closestSegment + 1;
-            isWalking = true;
-        }
+        if (vertical > 0f)
+            nextAnimation = "usiro";
+        else if (vertical < 0f)
+            nextAnimation = "mae";
+        else if (horizontal < 0f)
+            nextAnimation = "walk";
         else
+            nextAnimation = "walk2";
+
+        if (currentAnimation != nextAnimation)
         {
-            isWalking = false;
+            animator.Play(nextAnimation);
+            currentAnimation = nextAnimation;
         }
     }
 
-    void Update()
+    public void StartWalking(Vector3[] newPath)
     {
-        if (!isWalking || path == null)
-            return;
-
-        if (targetIndex >= path.Length)
-        {
-            isWalking = false;
-            return;
-        }
-
-        Vector3 target = path[targetIndex];
-
-        transform.position = Vector3.MoveTowards(
-            transform.position,
-            target,
-            moveSpeed * Time.deltaTime
-        );
-
-        if (Vector3.Distance(
-            transform.position,
-            target
-        ) < 0.01f)
-        {
-            transform.position = target;
-            targetIndex++;
-
-            if (targetIndex >= path.Length)
-            {
-                isWalking = false;
-            }
-        }
     }
 
     public void StopWalking()
     {
-        isWalking = false;
-        path = null;
-    }
-
-    private Vector3 ClosestPointOnLine(
-        Vector3 point,
-        Vector3 lineStart,
-        Vector3 lineEnd
-    )
-    {
-        Vector3 line = lineEnd - lineStart;
-
-        float length = line.sqrMagnitude;
-
-        if (length == 0)
-            return lineStart;
-
-        float t = Vector3.Dot(
-            point - lineStart,
-            line
-        ) / length;
-
-        t = Mathf.Clamp01(t);
-
-        return lineStart + line * t;
+        if (animator != null)
+        {
+            animator.SetBool("IsWalking", false);
+            currentAnimation = "";
+        }
     }
 }
