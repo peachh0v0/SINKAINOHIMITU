@@ -6,7 +6,11 @@ using UnityEngine.Tilemaps;
 [RequireComponent(typeof(Rigidbody2D))]
 public class GirlController : MonoBehaviour
 {
+    [Header("移動速度")]
     [SerializeField] private float moveSpeed = 2f;
+    [SerializeField] private float dashSpeed = 4f;
+
+    [Header("コンポーネント")]
     [SerializeField] private Animator animator;
     [SerializeField] private Tilemap floorTilemap;
 
@@ -82,8 +86,18 @@ public class GirlController : MonoBehaviour
         if (floorTilemap == null)
             return;
 
+        // Shiftキーを押している間だけダッシュ
+        bool isDashing = Keyboard.current != null &&
+            (Keyboard.current.leftShiftKey.isPressed ||
+             Keyboard.current.rightShiftKey.isPressed);
+
+        float currentSpeed = isDashing
+            ? dashSpeed
+            : moveSpeed;
+
         Vector2 currentPosition = rb.position;
-        Vector2 move = movement * moveSpeed * Time.fixedDeltaTime;
+        Vector2 move =
+            movement * currentSpeed * Time.fixedDeltaTime;
 
         // 横移動：床がある場所だけ進む
         if (move.x != 0f)
@@ -126,7 +140,7 @@ public class GirlController : MonoBehaviour
 
     public void StartWalking(Vector3[] newPath)
     {
-        // 今はいったんキーボード移動を使用
+        // 現在はキーボード移動を使用
     }
 
     public void StopWalking()
@@ -135,4 +149,3 @@ public class GirlController : MonoBehaviour
         PlayAnimation("idol");
     }
 }
-
