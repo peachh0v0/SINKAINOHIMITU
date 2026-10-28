@@ -11,7 +11,6 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private Image nameImage;
     [SerializeField] private Image dialogueImage;
-    [SerializeField] private Image promptImage;
 
     private DialogueInteractable currentTarget;
     private Sprite[] currentImages;
@@ -27,15 +26,13 @@ public class DialogueManager : MonoBehaviour
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
-
-        if (promptImage != null)
-            promptImage.gameObject.SetActive(false);
     }
 
     private void Update()
     {
         if (Keyboard.current == null) return;
 
+        // 会話中はスペースキーで次へ
         if (isTalking)
         {
             if (Keyboard.current.spaceKey.wasPressedThisFrame)
@@ -44,6 +41,7 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
+        // 絵画の近くでEキーを押すと会話開始
         if (currentTarget != null &&
             Keyboard.current.eKey.wasPressedThisFrame)
         {
@@ -56,19 +54,12 @@ public class DialogueManager : MonoBehaviour
         if (isTalking) return;
 
         currentTarget = target;
-
-        if (promptImage != null)
-            promptImage.gameObject.SetActive(true);
     }
 
     public void ClearNearby(DialogueInteractable target)
     {
-        if (currentTarget != target) return;
-
-        currentTarget = null;
-
-        if (!isTalking && promptImage != null)
-            promptImage.gameObject.SetActive(false);
+        if (currentTarget == target)
+            currentTarget = null;
     }
 
     private void StartDialogue(DialogueInteractable target)
@@ -77,10 +68,7 @@ public class DialogueManager : MonoBehaviour
             target.DialogueImages == null ||
             target.DialogueImages.Length == 0)
         {
-            Debug.LogWarning(
-                "会話画像が設定されていません。",
-                target
-            );
+            Debug.LogWarning("会話画像が設定されていません。", target);
             return;
         }
 
@@ -91,9 +79,6 @@ public class DialogueManager : MonoBehaviour
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
-
-        if (promptImage != null)
-            promptImage.gameObject.SetActive(false);
 
         GameObject girl = GameObject.FindGameObjectWithTag("Player");
 
@@ -131,7 +116,6 @@ public class DialogueManager : MonoBehaviour
     {
         if (dialogueImage == null ||
             currentImages == null ||
-            imageIndex < 0 ||
             imageIndex >= currentImages.Length)
             return;
 
@@ -144,16 +128,24 @@ public class DialogueManager : MonoBehaviour
     {
         isTalking = false;
 
+        // 会話枠・名前・セリフをまとめて非表示
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
+
+        if (nameImage != null)
+            nameImage.enabled = false;
+
+        if (dialogueImage != null)
+        {
+            dialogueImage.sprite = null;
+            dialogueImage.enabled = false;
+        }
 
         if (girlController != null)
             girlController.enabled = true;
 
-        if (promptImage != null && currentTarget != null)
-            promptImage.gameObject.SetActive(true);
-
         currentImages = null;
+        currentTarget = null;
         girlController = null;
     }
 }
